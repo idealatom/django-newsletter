@@ -10,7 +10,9 @@ from django.template import RequestContext, Context
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponse, Http404
 
-from django.views.generic import list_detail, date_based
+from django.views.generic.dates import ArchiveIndexView
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 
 from django.contrib import messages
 from django.contrib.sites.models import Site
@@ -74,15 +76,13 @@ def newsletter_list(request):
     else:
         formset = None
 
-    return list_detail.object_list(
-        request, newsletters, extra_context={'formset': formset})
+    return ListView(request, newsletters, extra_context={'formset': formset})
 
 
 def newsletter_detail(request, newsletter_slug):
     newsletters = Newsletter.on_site.filter(visible=True)
 
-    return list_detail.object_detail(
-        request, newsletters, slug=newsletter_slug)
+    return DetailView(request, newsletters, slug=newsletter_slug)
 
 
 @login_required
@@ -359,7 +359,7 @@ def archive(request, newsletter_slug):
         newsletter=my_newsletter, publish=True
     )
 
-    return date_based.archive_index(
+    return ArchiveIndexView(
         request,
         queryset=submissions,
         date_field='publish_date',
